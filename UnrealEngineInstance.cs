@@ -24,8 +24,10 @@ namespace UE4Assistant
 
 			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
 
-			var LocalUnrealEngine = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\EpicGames\Unreal Engine");
-			var UserUnrealEngineBuilds = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds");
+			var LocalUnrealEngine = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryView.Registry64)
+				?.OpenSubKey(@"SOFTWARE\EpicGames\Unreal Engine");
+			var UserUnrealEngineBuilds = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
+				?.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds");
 
 			if (LocalUnrealEngine != null)
 			{
