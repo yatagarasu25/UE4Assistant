@@ -79,7 +79,9 @@ namespace UE4Assistant
 
 		public static string GetUEVersionSelectorPath()
 		{
-			var LocalUnrealEngine = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(@"Unreal.ProjectFile\DefaultIcon");
+			var LocalUnrealEngine =
+				Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.ClassesRoot, Microsoft.Win32.RegistryView.Registry64)
+				?.OpenSubKey(@"Unreal.ProjectFile\DefaultIcon");
 			if (LocalUnrealEngine != null)
 			{
 				return ((string)LocalUnrealEngine.GetValue("")).Trim('"', ' ');
