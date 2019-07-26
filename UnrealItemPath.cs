@@ -45,7 +45,7 @@ namespace UE4Assistant
 			var localPathTokens = localPath.Split(new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
 			LocalPath = Path.Combine(localPathTokens);
 			FullPath = Path.Combine(module.RootPath, LocalPath);
-			if (path.Length > 0)
+			if (localPathTokens.Length > 0)
 			{
 				if (localPathTokens[0].ToLower() == "private")
 				{

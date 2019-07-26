@@ -12,7 +12,8 @@ namespace UE4Assistant
 			typeof(TemplateType).GetProperty("Session").SetValue(TemplateInstance, parameters);
 			typeof(TemplateType).GetMethod("Initialize").Invoke(TemplateInstance, null);
 
-			return (string)typeof(TemplateType).GetMethod("TransformText").Invoke(TemplateInstance, null);
+			string Result = (string)typeof(TemplateType).GetMethod("TransformText").Invoke(TemplateInstance, null);
+			return Result.Replace("\r\n", System.Environment.NewLine);
 		}
 	}
 }
