@@ -74,8 +74,16 @@ namespace UE4Assistant
 			Process process = new Process();
 			ProcessStartInfo startInfo = new ProcessStartInfo();
 			//startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-			startInfo.FileName = "cmd.exe";
-			startInfo.Arguments = "/C \"" + command + "\"";
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				startInfo.FileName = "cmd.exe";
+				startInfo.Arguments = "/C \"" + command + "\"";
+			}
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			{
+				startInfo.FileName = "sh";
+				startInfo.Arguments = command;
+			}
 			//startInfo.RedirectStandardOutput = true;
 			//startInfo.RedirectStandardError = true;
 			//startInfo.RedirectStandardInput = true;

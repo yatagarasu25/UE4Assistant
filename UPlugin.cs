@@ -81,6 +81,7 @@ namespace UE4Assistant
 				, Template.TransformToText<Module_cpp>(parameters));
 			File.WriteAllText(Path.Combine(publicPath, module.Name + ".h")
 				, Template.TransformToText<Module_h>(parameters));
+			File.WriteAllText(Path.Combine(publicPath, module.Name + ".final.h"), "");
 		}
 	}
 }

@@ -1,15 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 using SystemEx;
 
 
 
 namespace UE4Assistant
 {
+	public class LauncherInstallationItem
+	{
+		public string InstallLocation;
+		public string AppName;
+		public string AppVersion;
+	}
+
+	public class LauncherInstalled
+	{
+		public List<LauncherInstallationItem> InstallationList;
+	}
+
 	public class UnrealEngineInstance
 	{
 		public readonly string RootPath;
+		public readonly string GenerateProjectFiles;
 		public readonly string RunUATPath;
 		public readonly string UE4EditorPath;
 
@@ -24,34 +39,48 @@ namespace UE4Assistant
 
 			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
 
-			var LocalUnrealEngine = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryView.Registry64)
-				?.OpenSubKey(@"SOFTWARE\EpicGames\Unreal Engine");
-			var UserUnrealEngineBuilds = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
-				?.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds");
-
-			if (LocalUnrealEngine != null)
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				foreach (string build in LocalUnrealEngine.GetSubKeyNames())
-				{
-					string ueroot = (string)LocalUnrealEngine.OpenSubKey(build).GetValue("InstalledDirectory");
+				var LocalUnrealEngine = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryView.Registry64)
+					?.OpenSubKey(@"SOFTWARE\EpicGames\Unreal Engine");
+				var UserUnrealEngineBuilds = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
+					?.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds");
 
-					if (!string.IsNullOrWhiteSpace(ueroot))
+				if (LocalUnrealEngine != null)
+				{
+					foreach (string build in LocalUnrealEngine.GetSubKeyNames())
 					{
-						availableBuilds.Add(build, ueroot);
+						string ueroot = (string)LocalUnrealEngine.OpenSubKey(build).GetValue("InstalledDirectory");
+
+						if (!string.IsNullOrWhiteSpace(ueroot))
+						{
+							availableBuilds.Add(build, ueroot);
+						}
+					}
+				}
+
+				if (UserUnrealEngineBuilds != null)
+				{
+					foreach (string build in UserUnrealEngineBuilds.GetValueNames())
+					{
+						string ueroot = (string)UserUnrealEngineBuilds.GetValue(build);
+
+						if (!string.IsNullOrWhiteSpace(ueroot))
+						{
+							availableBuilds.Add(build, ueroot);
+						}
 					}
 				}
 			}
-
-			if (UserUnrealEngineBuilds != null)
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
-				foreach (string build in UserUnrealEngineBuilds.GetValueNames())
-				{
-					string ueroot = (string)UserUnrealEngineBuilds.GetValue(build);
+				string EpicAppSupportPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Library", "Application Support", "Epic");
+				string LauncherInstalledPath = Path.Combine(EpicAppSupportPath, "UnrealEngineLauncher", "LauncherInstalled.dat");
 
-					if (!string.IsNullOrWhiteSpace(ueroot))
-					{
-						availableBuilds.Add(build, ueroot);
-					}
+				LauncherInstalled Installed = JsonConvert.DeserializeObject<LauncherInstalled>(File.ReadAllText(LauncherInstalledPath));
+				foreach (LauncherInstallationItem Item in Installed.InstallationList)
+				{
+					availableBuilds.Add(Item.AppName.Replace("UE_", ""), Item.InstallLocation);
 				}
 			}
 
@@ -61,8 +90,11 @@ namespace UE4Assistant
 			}
 
 			RootPath = Path.GetFullPath(RootPath);
-			RunUATPath = Path.Combine(RootPath, "Engine\\Build\\BatchFiles\\RunUAT.bat");
-			UE4EditorPath = Path.Combine(RootPath, "Engine\\Binaries\\Win64\\UE4Editor.exe");
+
+			string BuildPath = Path.Combine(RootPath, "Engine", "Build");
+			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
+			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
+			UE4EditorPath = Path.Combine(BuildPath, "Win64", "UE4Editor.exe");
 		}
 
 		public UnrealEngineInstance(string rootPath)
@@ -72,9 +104,10 @@ namespace UE4Assistant
 				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
 			}
 
-			RootPath = Path.GetFullPath(rootPath);
-			RunUATPath = Path.Combine(RootPath, "Engine\\Build\\BatchFiles\\RunUAT.bat");
-			UE4EditorPath = Path.Combine(RootPath, "Engine\\Binaries\\Win64\\UE4Editor.exe");
+			string BuildPath = Path.Combine(RootPath, "Engine", "Build");
+			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
+			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
+			UE4EditorPath = Path.Combine(BuildPath, "Win64", "UE4Editor.exe");
 		}
 
 		public static string GetUEVersionSelectorPath()
