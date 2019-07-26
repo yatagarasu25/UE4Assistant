@@ -182,5 +182,26 @@ namespace UE4Assistant
 			EsDisplayRequired = 0x00000002,
 			EsSystemRequired = 0x00000001
 		}
+
+		class SetCurrentDirectoryGuard : IDisposable
+		{
+			string olddir;
+
+			public SetCurrentDirectoryGuard(string newdir)
+			{
+				olddir = Directory.GetCurrentDirectory();
+				Directory.SetCurrentDirectory(newdir);
+			}
+
+			public void Dispose()
+			{
+				Directory.SetCurrentDirectory(olddir);
+			}
+		}
+
+		public static IDisposable SetCurrentDirectory(string newdir)
+		{
+			return new SetCurrentDirectoryGuard(newdir);
+		}
 	}
 }
