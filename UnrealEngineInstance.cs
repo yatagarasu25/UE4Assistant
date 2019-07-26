@@ -17,7 +17,7 @@ namespace UE4Assistant
 		{
 			if (unrealItem.Type != UnrealItemType.Project)
 			{
-				unrealItem = UnrealItemDescription.DetectUnrealProject(unrealItem.FullPath);
+				unrealItem = UnrealItemDescription.DetectUnrealItem(unrealItem.FullPath, UnrealItemType.Project);
 			}
 
 			UProject project = UProject.Load(unrealItem.FullPath);

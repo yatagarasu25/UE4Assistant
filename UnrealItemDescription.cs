@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 
 
@@ -51,55 +52,33 @@ namespace UE4Assistant
 			}
 		}
 
+		public static UnrealItemDescription DetectUnrealItem(string path, string postfix, params UnrealItemType[] types)
+		{
+			foreach (string file in Directory.GetFiles(path))
+			{
+				if (file.EndsWith(postfix + ".uproject") && Array.IndexOf(types, UnrealItemType.Project) != -1)
+					return new UnrealItemDescription(UnrealItemType.Project, file);
+				else if (file.EndsWith(postfix + ".uplugin") && Array.IndexOf(types, UnrealItemType.Plugin) != -1)
+					return new UnrealItemDescription(UnrealItemType.Plugin, file);
+				else if (file.EndsWith(postfix + ".Build.cs") && Array.IndexOf(types, UnrealItemType.Module) != -1)
+					return new UnrealItemDescription(UnrealItemType.Module, file);
+			}
+
+			string basePath = Path.GetFullPath(Path.Combine(path, ".."));
+			if (basePath != path)
+				return DetectUnrealItem(basePath, types);
+
+			return null;
+		}
+
+		public static UnrealItemDescription DetectUnrealItem(string path, params UnrealItemType[] types)
+		{
+			return DetectUnrealItem(path, "", types);
+		}
+
 		public static UnrealItemDescription DetectUnrealItem(string path)
 		{
-			foreach (string file in Directory.GetFiles(path))
-			{
-				if (file.EndsWith(".uproject"))
-					return new UnrealItemDescription(UnrealItemType.Project, file);
-				else if (file.EndsWith(".uplugin"))
-					return new UnrealItemDescription(UnrealItemType.Plugin, file);
-				else if (file.EndsWith(".Build.cs"))
-					return new UnrealItemDescription(UnrealItemType.Module, file);
-			}
-
-			string basePath = Path.GetFullPath(Path.Combine(path, ".."));
-			if (basePath != path)
-				return DetectUnrealItem(basePath);
-
-			return null;
-		}
-
-		public static UnrealItemDescription DetectUnrealProject(string path, string projectName = null)
-		{
-			foreach (string file in Directory.GetFiles(path))
-			{
-				if (file.EndsWith((string.IsNullOrWhiteSpace(projectName) ? "" : projectName) + ".uproject"))
-					return new UnrealItemDescription(UnrealItemType.Project, file);
-				//else if (file.EndsWith((string.IsNullOrWhiteSpace(projectName) ? "" : projectName) + ".uplugin"))
-				//	return new UnrealItemDescription { Type = UnrealItemType.Plugin, RootPath = path, ItemName = Path.GetFileName(file) };
-			}
-
-			string basePath = Path.GetFullPath(Path.Combine(path, ".."));
-			if (basePath != path)
-				return DetectUnrealProject(basePath);
-
-			return null;
-		}
-
-		public static UnrealItemDescription DetectUnrealModule(string path)
-		{
-			foreach (string file in Directory.GetFiles(path))
-			{
-				if (file.EndsWith(".Build.cs"))
-					return new UnrealItemDescription(UnrealItemType.Module, file);
-			}
-
-			string basePath = Path.GetFullPath(Path.Combine(path, ".."));
-			if (basePath != path)
-				return DetectUnrealModule(basePath);
-
-			return null;
+			return DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin, UnrealItemType.Module);
 		}
 	}
 }
