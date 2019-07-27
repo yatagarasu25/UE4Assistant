@@ -1,4 +1,7 @@
-﻿namespace UE4Assistant
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace UE4Assistant
 {
 	public enum UModuleType
 	{
@@ -30,7 +33,9 @@
 	public class UModule
 	{
 		public string Name;
+		[JsonConverter(typeof(StringEnumConverter))]
 		public UModuleType Type = UModuleType.Runtime;
+		[JsonConverter(typeof(StringEnumConverter))]
 		public UModuleLoadingPhase LoadingPhase = UModuleLoadingPhase.Default;
 	}
 }

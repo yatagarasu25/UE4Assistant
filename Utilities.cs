@@ -72,23 +72,20 @@ namespace UE4Assistant
 			Console.WriteLine("> " + command);
 
 			Process process = new Process();
-			ProcessStartInfo startInfo = new ProcessStartInfo();
-			//startInfo.WindowStyle = ProcessWindowStyle.Hidden;
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				startInfo.FileName = "cmd.exe";
-				startInfo.Arguments = "/C \"" + command + "\"";
+				process.StartInfo.FileName = "cmd.exe";
+				process.StartInfo.Arguments = "/C \"" + command + "\"";
 			}
 			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
-				startInfo.FileName = "sh";
-				startInfo.Arguments = command;
+				process.StartInfo.FileName = "sh";
+				process.StartInfo.Arguments = command;
 			}
-			//startInfo.RedirectStandardOutput = true;
-			//startInfo.RedirectStandardError = true;
-			//startInfo.RedirectStandardInput = true;
-			startInfo.UseShellExecute = false;
-			process.StartInfo = startInfo;
+			//process.StartInfo.RedirectStandardOutput = true;
+			//process.StartInfo.RedirectStandardError = true;
+			//process.StartInfo.RedirectStandardInput = true;
+			process.StartInfo.UseShellExecute = false;
 			process.Start();
 			//process.BeginOutputReadLine();
 			//process.BeginErrorReadLine();
