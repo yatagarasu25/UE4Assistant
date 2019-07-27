@@ -91,10 +91,12 @@ namespace UE4Assistant
 
 			RootPath = Path.GetFullPath(RootPath);
 
-			string BuildPath = Path.Combine(RootPath, "Engine", "Build");
+			string EnginePath = Path.Combine(RootPath, "Engine");
+			string BinariesPath = Path.Combine(EnginePath, "Binaries");
+			string BuildPath = Path.Combine(EnginePath, "Build");
 			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
 			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
-			UE4EditorPath = Path.Combine(BuildPath, "Win64", "UE4Editor.exe");
+			UE4EditorPath = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
 		}
 
 		public UnrealEngineInstance(string rootPath)
@@ -104,10 +106,12 @@ namespace UE4Assistant
 				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
 			}
 
-			string BuildPath = Path.Combine(RootPath, "Engine", "Build");
+			string EnginePath = Path.Combine(RootPath, "Engine");
+			string BinariesPath = Path.Combine(EnginePath, "Binaries");
+			string BuildPath = Path.Combine(EnginePath, "Build");
 			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
 			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
-			UE4EditorPath = Path.Combine(BuildPath, "Win64", "UE4Editor.exe");
+			UE4EditorPath = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
 		}
 
 		public static string GetUEVersionSelectorPath()
