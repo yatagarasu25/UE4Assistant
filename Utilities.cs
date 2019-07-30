@@ -71,30 +71,54 @@ namespace UE4Assistant
 		{
 			Console.WriteLine("> " + command);
 
-			Process process = new Process();
+			ProcessStartInfo processStartInfo = new ProcessStartInfo();
+			processStartInfo.UseShellExecute = false;
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				process.StartInfo.FileName = "cmd.exe";
-				process.StartInfo.Arguments = "/C \"" + command + "\"";
+				processStartInfo.FileName = "cmd.exe";
+				processStartInfo.Arguments = "/C \"" + command + "\"";
 			}
 			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
-				process.StartInfo.FileName = "sh";
-				process.StartInfo.Arguments = command;
+				processStartInfo.FileName = "sh";
+				processStartInfo.Arguments = command;
 			}
-			//process.StartInfo.RedirectStandardOutput = true;
-			//process.StartInfo.RedirectStandardError = true;
-			//process.StartInfo.RedirectStandardInput = true;
-			process.StartInfo.UseShellExecute = false;
-			process.Start();
-			//process.BeginOutputReadLine();
-			//process.BeginErrorReadLine();
 
-			//Console.Write(process.StandardOutput.ReadToEnd());
-			//Console.Write(process.StandardError.ReadToEnd());
+			using (Process process = Process.Start(processStartInfo))
+			{
+				//process.StartInfo.RedirectStandardOutput = true;
+				//process.StartInfo.RedirectStandardError = true;
+				//process.StartInfo.RedirectStandardInput = true;
+				//process.BeginOutputReadLine();
+				//process.BeginErrorReadLine();
 
-			process.WaitForExit();
-			process.Close();
+				//Console.Write(process.StandardOutput.ReadToEnd());
+				//Console.Write(process.StandardError.ReadToEnd());
+
+				process.WaitForExit();
+			}
+		}
+
+		public static void ExecuteOpenFile(string filename)
+		{
+			Console.WriteLine("> " + filename);
+
+			ProcessStartInfo processStartInfo = new ProcessStartInfo();
+			processStartInfo.UseShellExecute = true;
+			processStartInfo.WorkingDirectory = Path.GetDirectoryName(filename);
+			processStartInfo.FileName = filename;
+			processStartInfo.Verb = "OPEN";
+			using (Process process = Process.Start(processStartInfo))
+			{
+				//process.StartInfo.RedirectStandardOutput = true;
+				//process.StartInfo.RedirectStandardError = true;
+				//process.StartInfo.RedirectStandardInput = true;
+				//process.BeginOutputReadLine();
+				//process.BeginErrorReadLine();
+
+				//Console.Write(process.StandardOutput.ReadToEnd());
+				//Console.Write(process.StandardError.ReadToEnd());
+			}
 		}
 
 		public static byte[] CalculateMD5(string filename)
