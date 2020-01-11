@@ -20,6 +20,7 @@ namespace UE4Assistant
 		public string RootPath;
 		public string ItemFileName;
 		public string FullPath { get { return Path.Combine(RootPath, ItemFileName); } }
+		public string ModuleApiTag { get { return Name.ToUpper() + "_API"; } }
 		public string ModulePublicPath { get { return Path.Combine(RootPath, "Public"); } }
 		public string ModulePrivatePath { get { return Path.Combine(RootPath, "Private"); } }
 		public string ModuleClassesPath {
