@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UModule.cs" />
+    <Compile Include="UnrealCookSettings.cs" />
     <Compile Include="UnrealEngineInstance.cs" />
     <Compile Include="UnrealItemDescription.cs" />
     <Compile Include="UnrealItemPath.cs" />
