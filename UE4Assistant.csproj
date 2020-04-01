@@ -60,9 +60,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SystemEx\SystemEx.net461.csproj">
-      <Project>{b99c3d19-a0f3-45e0-aecf-3f06688e4493}</Project>
-      <Name>SystemEx.net461</Name>
+    <ProjectReference Include="..\SystemEx\SystemEx.csproj">
+      <Project>{9e131658-4ec6-4ad4-8d96-fb7b5ee82d88}</Project>
+      <Name>SystemEx</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
