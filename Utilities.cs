@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -231,6 +232,26 @@ namespace UE4Assistant
 		public static IDisposable SetCurrentDirectory(string newdir)
 		{
 			return new SetCurrentDirectoryGuard(newdir);
+		}
+
+		public static IEnumerable<string> ParsePCHFilesErrors(this string log)
+		{
+			foreach (string line in log.Split('\n'))
+			{
+				int mi = line.IndexOf("fatal error C1853");
+				if (mi < 0)
+					continue;
+
+				int si = line.IndexOf('\'', mi);
+				if (si < 0)
+					continue;
+
+				int ei = line.IndexOf('\'', si + 1);
+				if (ei <= si)
+					continue;
+
+				yield return line.Substring(si + 1, ei - si - 1);
+			}
 		}
 	}
 }
