@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 
@@ -12,6 +14,12 @@ namespace UE4Assistant
 		Module,
 	}
 
+	public class UE4EditorModules
+	{
+		public string BuildId = string.Empty;
+		public Dictionary<string, string> Modules = new Dictionary<string, string>();
+	}
+
 	public class UnrealItemDescription
 	{
 		public UnrealItemType Type;
@@ -19,19 +27,31 @@ namespace UE4Assistant
 
 		public string RootPath;
 		public string ItemFileName;
-		public string FullPath { get { return Path.Combine(RootPath, ItemFileName); } }
-		public string ModuleApiTag { get { return Name.ToUpper() + "_API"; } }
-		public string ModulePublicPath { get { return Path.Combine(RootPath, "Public"); } }
-		public string ModulePrivatePath { get { return Path.Combine(RootPath, "Private"); } }
+		public string FullPath => Path.Combine(RootPath, ItemFileName);
+		public string ModuleApiTag => Name.ToUpper() + "_API";
+		public string ModulePublicPath => Path.Combine(RootPath, "Public");
+		public string ModulePrivatePath => Path.Combine(RootPath, "Private");
 		public string ModuleClassesPath {
 			get {
-				string classesPath = Path.Combine(RootPath, "Classes");
+				var classesPath = Path.Combine(RootPath, "Classes");
 				if (Directory.Exists(classesPath))
 					return classesPath;
 
 				return ModulePublicPath;
 			}
 		}
+
+		public UE4EditorModules BuildModules {
+			get {
+				var modulesPath = Path.Combine(RootPath, "Binaries", "Win64", "UE4Editor.modules");
+				if (!File.Exists(modulesPath))
+					return null;
+
+				return JsonConvert.DeserializeObject<UE4EditorModules>(File.ReadAllText(modulesPath));
+			}
+		}
+
+		public string ProjectLogPath => Path.Combine(RootPath, "Saved", "Logs", Name + ".log");
 
 		public UnrealItemDescription(UnrealItemType type, string path)
 		{
