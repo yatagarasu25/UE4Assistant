@@ -24,9 +24,18 @@ namespace UE4Assistant
 	public class UnrealEngineInstance
 	{
 		public readonly string RootPath;
-		public readonly string GenerateProjectFiles;
-		public readonly string RunUATPath;
-		public readonly string UE4EditorPath;
+
+
+		public string EnginePath => Path.Combine(RootPath, "Engine");
+		public string BinariesPath => Path.Combine(EnginePath, "Binaries");
+		public string BinariesDotNETPath => Path.Combine(BinariesPath, "DotNET");
+		public string BuildPath => Path.Combine(EnginePath, "Build");
+
+
+		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
+		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
+		public string UE4EditorPath => Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
+
 
 		public UnrealEngineInstance(UnrealItemDescription unrealItem)
 		{
@@ -90,13 +99,6 @@ namespace UE4Assistant
 			}
 
 			RootPath = Path.GetFullPath(RootPath);
-
-			string EnginePath = Path.Combine(RootPath, "Engine");
-			string BinariesPath = Path.Combine(EnginePath, "Binaries");
-			string BuildPath = Path.Combine(EnginePath, "Build");
-			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
-			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
-			UE4EditorPath = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
 		}
 
 		public UnrealEngineInstance(string rootPath)
@@ -106,12 +108,7 @@ namespace UE4Assistant
 				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
 			}
 
-			string EnginePath = Path.Combine(RootPath, "Engine");
-			string BinariesPath = Path.Combine(EnginePath, "Binaries");
-			string BuildPath = Path.Combine(EnginePath, "Build");
-			GenerateProjectFiles = Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
-			RunUATPath = Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
-			UE4EditorPath = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
+			RootPath = rootPath;
 		}
 
 		public static string GetUEVersionSelectorPath()

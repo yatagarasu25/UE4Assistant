@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,8 +31,9 @@ namespace UE4Assistant
 		public string ItemFileName;
 		public string FullPath => Path.Combine(RootPath, ItemFileName);
 		public string ModuleApiTag => Name.ToUpper() + "_API";
-		public string ModulePublicPath => Path.Combine(RootPath, "Public");
-		public string ModulePrivatePath => Path.Combine(RootPath, "Private");
+		public bool HasPublicPrivateFolders => Directory.Exists(Path.Combine(RootPath, "Public")) || Directory.Exists(Path.Combine(RootPath, "Private"));
+		public string ModulePublicPath => HasPublicPrivateFolders ? Path.Combine(RootPath, "Public") : RootPath;
+		public string ModulePrivatePath => HasPublicPrivateFolders ? Path.Combine(RootPath, "Private") : RootPath;
 		public string ModuleClassesPath {
 			get {
 				var classesPath = Path.Combine(RootPath, "Classes");
