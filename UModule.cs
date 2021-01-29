@@ -10,6 +10,8 @@ namespace UE4Assistant
 		RuntimeAndProgram,
 		CookedOnly,
 		Developer,
+		UncookedOnly,
+		DeveloperTool,
 		Editor,
 		EditorNoCommandlet,
 		Program,
