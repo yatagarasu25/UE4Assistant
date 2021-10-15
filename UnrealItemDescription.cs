@@ -52,7 +52,29 @@ namespace UE4Assistant
 			}
 		}
 
+		public string BuildLogPath => Path.Combine(RootPath, "Intermediate", "Build", "Unused");
+		public IEnumerable<string> BuildLogs {
+			get {
+				if (!Directory.Exists(BuildLogPath))
+					yield break;
+
+				foreach (var logFile in Directory.GetFiles(BuildLogPath, "*.log", SearchOption.TopDirectoryOnly))
+				{
+					var logName = Path.GetFileNameWithoutExtension(logFile);
+					if (logName == Name)
+						yield return logFile;
+
+					if (logName == "UE4")
+						yield return logFile;
+				}
+			}
+		}
+
 		public string ProjectLogPath => Path.Combine(RootPath, "Saved", "Logs", Name + ".log");
+		public string ConfigurationPath => Path.Combine(RootPath, ".ue4a");
+		public TConfiguration ReadConfiguration<TConfiguration>()
+				where TConfiguration : new()
+			=> Configuration.ReadConfiguration<TConfiguration>(ConfigurationPath);
 
 		public UnrealItemDescription(UnrealItemType type, string path)
 		{
