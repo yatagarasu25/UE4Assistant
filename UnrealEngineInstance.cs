@@ -23,6 +23,7 @@ namespace UE4Assistant
 
 	public class UnrealEngineInstance
 	{
+		public readonly string Uuid;
 		public readonly string RootPath;
 
 
@@ -44,8 +45,33 @@ namespace UE4Assistant
 				unrealItem = UnrealItemDescription.DetectUnrealItem(unrealItem.FullPath, UnrealItemType.Project);
 			}
 
-			UProject project = UProject.Load(unrealItem.FullPath);
+			if (unrealItem == null)
+			{
+				throw new ArgumentException($"Can not find project root.");
+			}
 
+			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
+			if (Configuration != null)
+			{
+				RootPath = Configuration.UE4RootPath;
+			}
+			else
+			{
+				UProject project = UProject.Load(unrealItem.FullPath);
+				Dictionary<string, string> availableBuilds = FindAvailableBuilds();
+
+				if (!availableBuilds.TryGetValue(project.EngineAssociation, out RootPath))
+				{
+					throw new ArgumentException($"Engine root for {project.EngineAssociation} not found in registry.");
+				}
+
+				Uuid = project.EngineAssociation;
+				RootPath = Path.GetFullPath(RootPath);
+			}
+		}
+
+		private static Dictionary<string, string> FindAvailableBuilds()
+		{
 			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -93,22 +119,29 @@ namespace UE4Assistant
 				}
 			}
 
-			if (!availableBuilds.TryGetValue(project.EngineAssociation, out RootPath))
-			{
-				throw new ArgumentException("Engine root for {0} not found in registry.".format(project.EngineAssociation));
-			}
-
-			RootPath = Path.GetFullPath(RootPath);
+			return availableBuilds;
 		}
 
 		public UnrealEngineInstance(string rootPath)
 		{
-			if (!Directory.Exists(rootPath))
+			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
+
+			RootPath = rootPath;
+			foreach (var pair in availableBuilds)
+			{
+				if (rootPath.StartsWith(Path.GetFullPath(pair.Value)))
+				{
+					RootPath = pair.Value;
+					Uuid = pair.Key;
+
+					break;
+				}
+			}
+
+			if (!Directory.Exists(RootPath))
 			{
 				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
 			}
-
-			RootPath = rootPath;
 		}
 
 		public static string GetUEVersionSelectorPath()
