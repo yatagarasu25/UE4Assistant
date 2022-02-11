@@ -79,9 +79,9 @@ namespace UE4Assistant
 				processStartInfo.FileName = "cmd.exe";
 				processStartInfo.Arguments = "/C \"" + command + "\"";
 			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			else
 			{
-				processStartInfo.FileName = "sh";
+				processStartInfo.FileName = "/bin/bash";
 				processStartInfo.Arguments = command;
 			}
 
@@ -181,36 +181,6 @@ namespace UE4Assistant
 			int i0 = packageName.LastIndexOf('/');
 
 			return packageName.Substring(i0 + 1);
-		}
-
-		class PreventSleepGuard : IDisposable
-		{
-			public PreventSleepGuard()
-			{
-				SetThreadExecutionState(ExecutionState.EsContinuous | ExecutionState.EsSystemRequired);
-			}
-
-			public void Dispose()
-			{
-				SetThreadExecutionState(ExecutionState.EsContinuous);
-			}
-		}
-
-		public static IDisposable PreventSleep()
-		{
-			return new PreventSleepGuard();
-		}
-
-		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		private static extern ExecutionState SetThreadExecutionState(ExecutionState esFlags);
-
-		[FlagsAttribute]
-		private enum ExecutionState : uint
-		{
-			EsAwaymodeRequired = 0x00000040,
-			EsContinuous = 0x80000000,
-			EsDisplayRequired = 0x00000002,
-			EsSystemRequired = 0x00000001
 		}
 
 		class SetCurrentDirectoryGuard : IDisposable

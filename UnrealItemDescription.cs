@@ -74,7 +74,9 @@ namespace UE4Assistant
 		public string ConfigurationPath => Path.Combine(RootPath, ".ue4a");
 		public TConfiguration ReadConfiguration<TConfiguration>()
 				where TConfiguration : new()
-			=> Configuration.ReadConfiguration<TConfiguration>(ConfigurationPath);
+			=> File.Exists(ConfigurationPath)
+				? Configuration.ReadConfiguration<TConfiguration>(ConfigurationPath)
+				: default;
 
 		public UnrealItemDescription(UnrealItemType type, string path)
 		{

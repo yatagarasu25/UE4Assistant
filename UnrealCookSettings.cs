@@ -1,4 +1,6 @@
-﻿namespace UE4Assistant
+﻿using System.Runtime.InteropServices;
+
+namespace UE4Assistant
 {
 	public class UnrealCookSettings
 	{
@@ -21,6 +23,12 @@
 		public bool? Compressed = null;
 		public string ArchiveDirectory;
 
+		public static string DefaultPlatformName =>
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Win64"
+			: RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "Linux"
+			: RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "Mac"
+			: "Unknown";
+
 		public static UnrealCookSettings CreateDefaultSettings()
 		{
 			return new UnrealCookSettings
@@ -28,7 +36,7 @@
 				UE4RootPath = null,
 				ProjectFullPath = null,
 				UseP4 = false,
-				Platform = "Win64",
+				Platform = DefaultPlatformName,
 				ClientConfig = "Development",
 				ServerConfig = "Development",
 				Cook = true,
@@ -50,7 +58,7 @@
 				UE4RootPath = null,
 				ProjectFullPath = null,
 				UseP4 = false,
-				Platform = "Win64",
+				Platform = DefaultPlatformName,
 				ClientConfig = "Development",
 				ServerConfig = "Development",
 				Cook = false,

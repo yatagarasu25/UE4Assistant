@@ -34,7 +34,7 @@ namespace UE4Assistant
 
 
 		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
-		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", "RunUAT.bat");
+		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "RunUAT.bat" : "RunUAT.sh");
 		public string UE4EditorPath => Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
 
 
@@ -53,7 +53,7 @@ namespace UE4Assistant
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
 			if (Configuration != null)
 			{
-				RootPath = Configuration.UE4RootPath;
+				RootPath = Path.GetFullPath(Configuration.UE4RootPath);
 			}
 			else
 			{
@@ -68,6 +68,44 @@ namespace UE4Assistant
 				Uuid = project.EngineAssociation;
 				RootPath = Path.GetFullPath(RootPath);
 			}
+		}
+
+		public UnrealEngineInstance(string rootPath)
+		{
+			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
+
+			RootPath = Path.GetFullPath(rootPath);
+			foreach (var pair in availableBuilds)
+			{
+				if (RootPath.StartsWith(Path.GetFullPath(pair.Value)))
+				{
+					RootPath = pair.Value;
+					Uuid = pair.Key;
+
+					break;
+				}
+			}
+
+			if (!Directory.Exists(RootPath))
+			{
+				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
+			}
+		}
+
+		public static string GetUEVersionSelectorPath()
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				var LocalUnrealEngine =
+					Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.ClassesRoot, Microsoft.Win32.RegistryView.Registry64)
+					?.OpenSubKey(@"Unreal.ProjectFile\DefaultIcon");
+				if (LocalUnrealEngine != null)
+				{
+					return ((string)LocalUnrealEngine.GetValue("")).Trim('"', ' ');
+				}
+			}
+
+			return string.Empty;
 		}
 
 		private static Dictionary<string, string> FindAvailableBuilds()
@@ -122,39 +160,5 @@ namespace UE4Assistant
 			return availableBuilds;
 		}
 
-		public UnrealEngineInstance(string rootPath)
-		{
-			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
-
-			RootPath = rootPath;
-			foreach (var pair in availableBuilds)
-			{
-				if (rootPath.StartsWith(Path.GetFullPath(pair.Value)))
-				{
-					RootPath = pair.Value;
-					Uuid = pair.Key;
-
-					break;
-				}
-			}
-
-			if (!Directory.Exists(RootPath))
-			{
-				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
-			}
-		}
-
-		public static string GetUEVersionSelectorPath()
-		{
-			var LocalUnrealEngine =
-				Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.ClassesRoot, Microsoft.Win32.RegistryView.Registry64)
-				?.OpenSubKey(@"Unreal.ProjectFile\DefaultIcon");
-			if (LocalUnrealEngine != null)
-			{
-				return ((string)LocalUnrealEngine.GetValue("")).Trim('"', ' ');
-			}
-
-			return string.Empty;
-		}
 	}
 }
