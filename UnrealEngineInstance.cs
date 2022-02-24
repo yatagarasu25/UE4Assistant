@@ -53,7 +53,9 @@ namespace UE4Assistant
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
 			if (Configuration != null)
 			{
-				RootPath = Path.GetFullPath(Configuration.UE4RootPath);
+				RootPath = Path.IsPathRooted(Configuration.UE4RootPath)
+					? Configuration.UE4RootPath
+					: Path.GetFullPath(Path.Combine(unrealItem.RootPath, Configuration.UE4RootPath));
 			}
 			else
 			{
@@ -108,7 +110,7 @@ namespace UE4Assistant
 			return string.Empty;
 		}
 
-		private static Dictionary<string, string> FindAvailableBuilds()
+		public static Dictionary<string, string> FindAvailableBuilds()
 		{
 			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
 
