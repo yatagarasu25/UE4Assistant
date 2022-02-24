@@ -42,7 +42,7 @@ namespace UE4Assistant
 		{
 			if (unrealItem.Type != UnrealItemType.Project)
 			{
-				unrealItem = UnrealItemDescription.DetectUnrealItem(unrealItem.FullPath, UnrealItemType.Project);
+				unrealItem = UnrealItemDescription.DetectUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
 			}
 
 			if (unrealItem == null)
@@ -125,7 +125,7 @@ namespace UE4Assistant
 				{
 					foreach (string build in LocalUnrealEngine.GetSubKeyNames())
 					{
-						string ueroot = (string)LocalUnrealEngine.OpenSubKey(build).GetValue("InstalledDirectory");
+						string ueroot = Path.GetFullPath((string)LocalUnrealEngine.OpenSubKey(build).GetValue("InstalledDirectory"));
 
 						if (!string.IsNullOrWhiteSpace(ueroot))
 						{
@@ -138,11 +138,18 @@ namespace UE4Assistant
 				{
 					foreach (string build in UserUnrealEngineBuilds.GetValueNames())
 					{
-						string ueroot = (string)UserUnrealEngineBuilds.GetValue(build);
+						string ueroot = Path.GetFullPath((string)UserUnrealEngineBuilds.GetValue(build));
 
 						if (!string.IsNullOrWhiteSpace(ueroot))
 						{
-							availableBuilds.Add(build, ueroot);
+							try
+							{
+								availableBuilds.Add(new Guid(build).ToString("B").ToUpper(), ueroot);
+							}
+							catch
+							{
+								availableBuilds.Add(build, ueroot);
+							}
 						}
 					}
 				}
@@ -162,5 +169,39 @@ namespace UE4Assistant
 			return availableBuilds;
 		}
 
+		public static void SetUserUnrealEngineBuilds(string uuid, string path)
+		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				var UserUnrealEngineBuilds = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
+					?.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds", Microsoft.Win32.RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+				if (UserUnrealEngineBuilds != null)
+				{
+					string foundUuid = null;
+					foreach (string build in UserUnrealEngineBuilds.GetValueNames())
+					{
+						string ueroot = Path.GetFullPath((string)UserUnrealEngineBuilds.GetValue(build));
+
+						if (ueroot == path)
+						{
+							foundUuid = build;
+							break;
+						}
+						if (build == uuid)
+						{
+							foundUuid = build;
+							break;
+						}
+					}
+
+					if (foundUuid != null)
+					{
+						UserUnrealEngineBuilds.DeleteValue(foundUuid);
+						UserUnrealEngineBuilds.SetValue(uuid, path.Replace('\\', '/'));
+					}
+				}
+			}
+		}
 	}
 }
