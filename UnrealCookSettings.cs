@@ -6,6 +6,7 @@ namespace UE4Assistant
 	{
 		public string UE4RootPath = null;
 		public string ProjectFullPath = null;
+		public string Target = null;
 		public string Platform = null;
 		public string CookFlavor = null;
 		public string ClientConfig;
@@ -35,10 +36,11 @@ namespace UE4Assistant
 			{
 				UE4RootPath = null,
 				ProjectFullPath = null,
-				UseP4 = false,
+				Target = null,
 				Platform = DefaultPlatformName,
 				ClientConfig = "Development",
 				ServerConfig = "Development",
+				UseP4 = false,
 				Cook = true,
 				AllMaps = true,
 				Server = false,
@@ -57,10 +59,11 @@ namespace UE4Assistant
 			{
 				UE4RootPath = null,
 				ProjectFullPath = null,
-				UseP4 = false,
+				Target = null,
 				Platform = DefaultPlatformName,
 				ClientConfig = "Development",
 				ServerConfig = "Development",
+				UseP4 = false,
 				Cook = false,
 				AllMaps = true,
 				Server = false,
@@ -77,6 +80,7 @@ namespace UE4Assistant
 		{
 			return (!string.IsNullOrWhiteSpace(ProjectFullPath) ? string.Format("-project=\"{0}\"", ProjectFullPath) : "")
 				+ (Platform != null ? string.Format(" -platform=\"{0}\"", Platform) : "")
+				+ (Target != null ? string.Format(" -target=\"{0}\"", Target) : "")
 				+ (CookFlavor != null ? string.Format(" -cookflavor=\"{0}\"", CookFlavor) : "")
 				+ string.Format(" -clientconfig=\"{0}\"", ClientConfig)
 				+ string.Format(" -serverconfig=\"{0}\"", ServerConfig)
