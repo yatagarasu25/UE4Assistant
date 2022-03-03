@@ -54,7 +54,7 @@ namespace UE4Assistant
 			if (Configuration != null)
 			{
 				RootPath = Path.IsPathRooted(Configuration.UE4RootPath)
-					? Configuration.UE4RootPath
+					? Path.GetFullPath(Configuration.UE4RootPath)
 					: Path.GetFullPath(Path.Combine(unrealItem.RootPath, Configuration.UE4RootPath));
 			}
 			else
@@ -198,8 +198,8 @@ namespace UE4Assistant
 					if (foundUuid != null)
 					{
 						UserUnrealEngineBuilds.DeleteValue(foundUuid);
-						UserUnrealEngineBuilds.SetValue(uuid, path.Replace('\\', '/'));
 					}
+					UserUnrealEngineBuilds.SetValue(uuid, path.Replace('\\', '/'));
 				}
 			}
 		}
