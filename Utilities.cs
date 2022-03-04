@@ -85,16 +85,17 @@ namespace UE4Assistant
 			}
 		}
 
-		public static void ExecuteCommandLine(string command)
+		public static int ExecuteCommandLine(string command)
 		{
 			Console.WriteLine("> " + command);
 
+			var errorlevelFileName = Path.GetTempFileName();
 			ProcessStartInfo processStartInfo = new ProcessStartInfo();
 			processStartInfo.UseShellExecute = false;
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
 				processStartInfo.FileName = "cmd.exe";
-				processStartInfo.Arguments = "/C \"" + command + "\"";
+				processStartInfo.Arguments = "/v:on /c \"" + command + $" & echo !errorlevel! > {errorlevelFileName}\"";
 			}
 			else
 			{
@@ -115,6 +116,16 @@ namespace UE4Assistant
 
 				process.WaitForExit();
 			}
+
+			int errorlevel = 0;
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				if (!int.TryParse(File.ReadAllText(errorlevelFileName), out errorlevel))
+					errorlevel = -1;
+				File.Delete(errorlevelFileName);
+			}
+
+			return errorlevel;
 		}
 
 		public static void ExecuteOpenFile(string filename)
