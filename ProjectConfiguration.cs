@@ -24,5 +24,6 @@
 		public GenerateProjectConfiguration GenerateProject = new GenerateProjectConfiguration(false);
 		public string InterfaceSuffix = "Interface";
 		public string FunctionLibrarySuffix = "Statics";
+		public JsonIndentation JsonIndentation = JsonIndentation.Default;
 	}
 }

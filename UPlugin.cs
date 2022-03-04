@@ -23,7 +23,7 @@ namespace UE4Assistant
 		public string DocsURL = "";
 		public string MarketplaceURL = "";
 		public string SupportURL = "";
-		public IList<UModule> Modules = new List<UModule>();
+		public IList<UModuleItem> Modules = new List<UModuleItem>();
 		public bool EnabledByDefault = true;
 		public bool CanContainContent = true;
 		public bool IsBetaVersion = false;
@@ -42,9 +42,9 @@ namespace UE4Assistant
 			return plugin;
 		}
 
-		public void Save(string filename)
+		public void Save(string filename, JsonIndentation jsonIndentation)
 		{
-			File.WriteAllText(filename, JsonConvert.SerializeObject(this, Formatting.Indented));
+			File.WriteAllText(filename, this.SerializeObject(Formatting.Indented, jsonIndentation));
 		}
 	}
 }

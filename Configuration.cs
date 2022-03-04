@@ -15,7 +15,7 @@ namespace UE4Assistant
 
 		public static void WriteConfiguration<T>(string path, T configuration)
 		{
-			File.WriteAllText(path, JsonConvert.SerializeObject(configuration, Formatting.Indented));
+			File.WriteAllText(path, configuration.SerializeObject(Formatting.Indented, JsonIndentation.ReadFromSettings(Path.GetDirectoryName(path))));
 		}
 	}
 }

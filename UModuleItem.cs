@@ -32,7 +32,7 @@ namespace UE4Assistant
 		None,
 	}
 
-	public class UModule
+	public class UModuleItem
 	{
 		public string Name;
 		[JsonConverter(typeof(StringEnumConverter))]

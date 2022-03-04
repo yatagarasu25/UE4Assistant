@@ -1,17 +1,34 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 
 
 
 namespace UE4Assistant
 {
+	public struct JsonIndentation
+	{
+		public static readonly JsonIndentation Default = new JsonIndentation { IndentationChar = '\t', IndentationLevel = 1 };
+
+		public char IndentationChar;
+		public int IndentationLevel;
+
+		public static JsonIndentation ReadFromSettings(string path)
+		{
+			var uid = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
+			return uid?.ReadConfiguration<ProjectConfiguration>().JsonIndentation ?? Default;
+		}
+	}
+
 	public static class Utilities
 	{
 		public static DateTime GetLinkerTime(this Assembly assembly, TimeZoneInfo target = null)
@@ -222,6 +239,23 @@ namespace UE4Assistant
 
 				yield return line.Substring(si + 1, ei - si - 1);
 			}
+		}
+
+		public static string SerializeObject(this object value, Formatting formatting, JsonIndentation indentation)
+{
+			JsonSerializer jsonSerializer = JsonSerializer.CreateDefault(null);
+			jsonSerializer.Formatting = formatting;
+
+			StringWriter stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
+			using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
+			{
+				jsonTextWriter.Formatting = jsonSerializer.Formatting;
+				jsonTextWriter.Indentation = indentation.IndentationLevel;
+				jsonTextWriter.IndentChar = indentation.IndentationChar;
+				jsonSerializer.Serialize(jsonTextWriter, value, null);
+			}
+
+			return stringWriter.ToString();
 		}
 	}
 }

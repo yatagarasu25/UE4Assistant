@@ -18,9 +18,13 @@ namespace UE4Assistant
 		public string EngineAssociation = "";
 		public string Category = "";
 		public string Description = "";
-		public IList<UModule> Modules = new List<UModule>();
+		public List<UModuleItem> Modules = new List<UModuleItem>();
+		public List<UPluginItem> Plugins = new List<UPluginItem>();
+		public List<string> TargetPlatforms = new List<string>();
 
-
+		public bool ShouldSerializeModules() => Modules != null && Modules.Count > 0;
+		public bool ShouldSerializePlugins() => Plugins != null && Plugins.Count > 0;
+		public bool ShouldSerializeTargetPlatforms() => TargetPlatforms != null && TargetPlatforms.Count > 0;
 
 		public UProject()
 		{
@@ -34,9 +38,9 @@ namespace UE4Assistant
 			return project;
 		}
 
-		public void Save(string filename)
+		public void Save(string filename, JsonIndentation jsonIndentation)
 		{
-			File.WriteAllText(filename, JsonConvert.SerializeObject(this, Formatting.Indented));
+			File.WriteAllText(filename, this.SerializeObject(Formatting.Indented, jsonIndentation));
 		}
 	}
 }
