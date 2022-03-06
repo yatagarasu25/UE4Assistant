@@ -89,7 +89,7 @@ namespace UE4Assistant
 		{
 			var error = ExecuteCommandLine(command);
 			if (error != 0)
-				throw new ExecuteCommandLineException(error);
+				throw new ExecuteCommandLineException(command, error);
 		}
 
 		public static int ExecuteCommandLine(string command)

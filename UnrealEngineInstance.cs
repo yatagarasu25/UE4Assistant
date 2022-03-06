@@ -57,7 +57,7 @@ namespace UE4Assistant
 
 				if (!availableBuilds.TryGetValue(project.EngineAssociation, out RootPath))
 				{
-					throw new ArgumentException($"Engine root for {project.EngineAssociation} not found in registry.");
+					throw new UEIdNotFound(project.EngineAssociation);
 				}
 
 				Uuid = project.EngineAssociation;
@@ -83,7 +83,7 @@ namespace UE4Assistant
 
 			if (!Directory.Exists(RootPath))
 			{
-				throw new ArgumentException("Engine root for {0} does not exist.".format(rootPath));
+				throw new UERootNotFound(rootPath);
 			}
 		}
 

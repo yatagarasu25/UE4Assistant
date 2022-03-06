@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using SystemEx;
 
@@ -6,18 +7,12 @@ namespace UE4Assistant
 {
 	public class UE4AssistantException : ApplicationException
 	{
-		public int errorCode;
-
 		public UE4AssistantException(int errorCode = -1)
-		{
-			this.errorCode = errorCode;
-		}
+			=> HResult = errorCode;
 
 		public UE4AssistantException(string message, int errorCode = -1)
 			: base(message)
-		{
-			this.errorCode = errorCode;
-		}
+			=> HResult = errorCode;
 	}
 
 	public class RequireUnrealItemException : UE4AssistantException
@@ -36,10 +31,38 @@ namespace UE4Assistant
 
 	public class ExecuteCommandLineException : UE4AssistantException
 	{
-		public ExecuteCommandLineException(int errorCode)
+		private string command;
+
+		public override string Message => $"Failed to run command \"{command}\" with error code {HResult}.";
+
+		public ExecuteCommandLineException(string command, int errorCode)
 			: base(errorCode)
 		{
+			this.command = command;
 		}
 	}
 
+	public class UERootNotFound : UE4AssistantException
+	{
+		private string path;
+
+		public override string Message => $"Engine root for {path} does not exist.";
+
+		public UERootNotFound(string path)
+		{
+			this.path = path;
+		}
+	}
+
+	public class UEIdNotFound : UE4AssistantException
+	{
+		private string id;
+
+		public override string Message => $"Engine root for {id} not found in registry.";
+
+		public UEIdNotFound(string id)
+		{
+			this.id = id;
+		}
+	}
 }
