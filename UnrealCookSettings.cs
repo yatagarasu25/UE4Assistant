@@ -22,6 +22,8 @@ namespace UE4Assistant
 		public bool? Archive = null;
 		public bool? Package = null;
 		public bool? Compressed = null;
+		public bool? NoXGE = null;
+		public bool? NoFASTBuild = null;
 		public string ArchiveDirectory;
 
 		public static string DefaultPlatformName =>
@@ -30,10 +32,8 @@ namespace UE4Assistant
 			: RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "Mac"
 			: "Unknown";
 
-		public static UnrealCookSettings CreateDefaultSettings()
-		{
-			return new UnrealCookSettings
-			{
+		public static UnrealCookSettings CreateDefaultSettings() =>
+			new UnrealCookSettings {
 				UE4RootPath = null,
 				ProjectFullPath = null,
 				Target = null,
@@ -51,12 +51,9 @@ namespace UE4Assistant
 				Package = true,
 				ArchiveDirectory = "./Packages",
 			};
-		}
 
 		public static UnrealCookSettings CreateBuildSettings()
-		{
-			return new UnrealCookSettings
-			{
+			=> new UnrealCookSettings {
 				UE4RootPath = null,
 				ProjectFullPath = null,
 				Target = null,
@@ -64,17 +61,11 @@ namespace UE4Assistant
 				ClientConfig = "Development",
 				ServerConfig = "Development",
 				UseP4 = false,
-				Cook = false,
 				AllMaps = true,
 				Server = false,
 				Build = true,
-				Stage = false,
-				Pak = false,
-				Archive = false,
-				Package = false,
 				ArchiveDirectory = null,
 			};
-		}
 
 		public override string ToString()
 		{
@@ -95,6 +86,8 @@ namespace UE4Assistant
 				+ (Archive != null ? Archive.Value ? " -archive" : "" : "")
 				+ (Package != null ? Package.Value ? " -package" : "" : "")
 				+ (Compressed != null ? Compressed.Value ? " -compressed" : "" : "")
+				+ (NoXGE != null ? NoXGE.Value ? " -NoXGE" : "" : "")
+				+ (NoFASTBuild != null ? NoFASTBuild.Value ? " -NoFASTBuild" : "" : "")
 				+ (!string.IsNullOrWhiteSpace(ArchiveDirectory) ? string.Format(" -archivedirectory=\"{0}\"", ArchiveDirectory) : "")
 				;
 		}

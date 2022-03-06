@@ -85,6 +85,13 @@ namespace UE4Assistant
 			}
 		}
 
+		public static void RequireExecuteCommandLine(string command)
+		{
+			var error = ExecuteCommandLine(command);
+			if (error != 0)
+				throw new ExecuteCommandLineException(error);
+		}
+
 		public static int ExecuteCommandLine(string command)
 		{
 			Console.WriteLine("> " + command);
@@ -128,7 +135,7 @@ namespace UE4Assistant
 			return errorlevel;
 		}
 
-		public static void ExecuteOpenFile(string filename)
+		public static int ExecuteOpenFile(string filename)
 		{
 			Console.WriteLine("> " + filename);
 
@@ -148,6 +155,8 @@ namespace UE4Assistant
 				//Console.Write(process.StandardOutput.ReadToEnd());
 				//Console.Write(process.StandardError.ReadToEnd());
 			}
+
+			return 0;
 		}
 
 		public static byte[] CalculateMD5(string filename)
@@ -194,6 +203,13 @@ namespace UE4Assistant
 				return fullpath.Substring(prefixLength) + "/";
 
 			return string.Empty;
+		}
+
+		public static string GetFullPath(string path, string basePath)
+		{
+			return Path.IsPathRooted(path)
+				? Path.GetFullPath(path)
+				: Path.GetFullPath(Path.Combine(basePath, path));
 		}
 
 		public static string GetModuleNameFromPackageName(this string packageName)
@@ -267,6 +283,14 @@ namespace UE4Assistant
 			}
 
 			return stringWriter.ToString();
+		}
+
+		public static void ShouldNotExist(string fileName)
+		{
+			if (File.Exists(fileName))
+			{
+				throw new UE4AssistantException($"File {fileName} already exists.");
+			}
 		}
 	}
 }

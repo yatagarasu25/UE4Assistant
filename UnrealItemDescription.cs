@@ -126,5 +126,11 @@ namespace UE4Assistant
 		{
 			return DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin, UnrealItemType.Module);
 		}
+
+		public static UnrealItemDescription RequireUnrealItem(string path, string postfix, params UnrealItemType[] types)
+			=> DetectUnrealItem(path, postfix, types) ?? throw new RequireUnrealItemException(path, types);
+
+		public static UnrealItemDescription RequireUnrealItem(string path, params UnrealItemType[] types)
+			=> DetectUnrealItem(path, "", types) ?? throw new RequireUnrealItemException(path, types);
 	}
 }

@@ -42,20 +42,13 @@ namespace UE4Assistant
 		{
 			if (unrealItem.Type != UnrealItemType.Project)
 			{
-				unrealItem = UnrealItemDescription.DetectUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
-			}
-
-			if (unrealItem == null)
-			{
-				throw new ArgumentException($"Can not find project root.");
+				unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
 			}
 
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
 			if (Configuration != null)
 			{
-				RootPath = Path.IsPathRooted(Configuration.UE4RootPath)
-					? Path.GetFullPath(Configuration.UE4RootPath)
-					: Path.GetFullPath(Path.Combine(unrealItem.RootPath, Configuration.UE4RootPath));
+				RootPath = Utilities.GetFullPath(unrealItem.RootPath, Configuration.UE4RootPath);
 			}
 			else
 			{

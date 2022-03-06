@@ -24,6 +24,8 @@
 		public GenerateProjectConfiguration GenerateProject = new GenerateProjectConfiguration(false);
 		public string InterfaceSuffix = "Interface";
 		public string FunctionLibrarySuffix = "Statics";
+		public string DefaultBuildConfigurationFile = null;
+		public string DefaultCookConfigurationFile = null;
 		public JsonIndentation JsonIndentation = JsonIndentation.Default;
 	}
 }
