@@ -25,7 +25,7 @@ namespace UE4Assistant
 		public static JsonIndentation ReadFromSettings(string path)
 		{
 			var uid = UnrealItemDescription.DetectUnrealItem(path, UnrealItemType.Project);
-			return uid?.ReadConfiguration<ProjectConfiguration>().JsonIndentation ?? Default;
+			return uid?.ReadConfiguration<ProjectConfiguration>()?.JsonIndentation ?? Default;
 		}
 	}
 
