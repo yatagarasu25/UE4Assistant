@@ -45,15 +45,25 @@ namespace UE4Assistant
 				unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
 			}
 
+			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
 			if (Configuration != null)
 			{
-				RootPath = Utilities.GetFullPath(unrealItem.RootPath, Configuration.UE4RootPath);
+				RootPath = Utilities.GetFullPath(Configuration.UE4RootPath, unrealItem.RootPath);
+				Uuid = "<Engine Not Registered>";
+
+				foreach (var (uuid, path) in availableBuilds)
+				{
+					if (Path.GetFullPath(path) == RootPath)
+					{
+						Uuid = uuid;
+						break;
+					}	
+				}
 			}
 			else
 			{
 				UProject project = UProject.Load(unrealItem.FullPath);
-				Dictionary<string, string> availableBuilds = FindAvailableBuilds();
 
 				if (!availableBuilds.TryGetValue(project.EngineAssociation, out RootPath))
 				{
