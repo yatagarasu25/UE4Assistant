@@ -33,9 +33,15 @@ namespace UE4Assistant
 		public string BuildPath => Path.Combine(EnginePath, "Build");
 
 
-		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", "GenerateProjectFiles.sh");
-		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "RunUAT.bat" : "RunUAT.sh");
-		public string UE4EditorPath => Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
+		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", $"GenerateProjectFiles{Utilities.ScriptExtension}");
+		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", $"RunUAT{Utilities.ScriptExtension}");
+		public string UnrealEditorPath {
+			get {
+				var UE4 = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
+				var UE5 = Path.Combine(BinariesPath, "Win64", "UnrealEditor.exe");
+				return File.Exists(UE4) ? UE4 : UE5;
+			}
+		}
 
 
 		public UnrealEngineInstance(UnrealItemDescription unrealItem)
@@ -47,7 +53,7 @@ namespace UE4Assistant
 
 			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
-			if (Configuration != null)
+			if (!(Configuration?.UE4RootPath).IsNullOrWhiteSpace())
 			{
 				RootPath = Utilities.GetFullPath(Configuration.UE4RootPath, unrealItem.RootPath);
 				Uuid = "<Engine Not Registered>";

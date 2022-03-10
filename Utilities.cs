@@ -31,6 +31,9 @@ namespace UE4Assistant
 
 	public static class Utilities
 	{
+		public static string ScriptExtension =
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".bat" : ".sh";
+
 		public static DateTime GetLinkerTime(this Assembly assembly, TimeZoneInfo target = null)
 		{
 			var filePath = assembly.Location;
