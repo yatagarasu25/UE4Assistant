@@ -122,6 +122,11 @@ namespace UE4Assistant
 			return DetectUnrealItem(path, "", types);
 		}
 
+		public static UnrealItemDescription DetectUnrealItemExceptTemp(string path, params UnrealItemType[] types)
+		{
+			return !path.StartsWith(Path.GetDirectoryName(Path.GetTempPath())) ? DetectUnrealItem(path, "", types) : null;
+		}
+
 		public static UnrealItemDescription DetectUnrealItem(string path)
 		{
 			return DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin, UnrealItemType.Module);
