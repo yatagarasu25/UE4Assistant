@@ -64,7 +64,7 @@ namespace UE4Assistant
 					{
 						Uuid = uuid;
 						break;
-					}	
+					}
 				}
 			}
 			else
@@ -168,11 +168,15 @@ namespace UE4Assistant
 				string EpicAppSupportPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Library", "Application Support", "Epic");
 				string LauncherInstalledPath = Path.Combine(EpicAppSupportPath, "UnrealEngineLauncher", "LauncherInstalled.dat");
 
-				LauncherInstalled Installed = JsonConvert.DeserializeObject<LauncherInstalled>(File.ReadAllText(LauncherInstalledPath));
-				foreach (LauncherInstallationItem Item in Installed.InstallationList)
+				try
 				{
-					availableBuilds.Add(Item.AppName.Replace("UE_", ""), Item.InstallLocation);
+					LauncherInstalled Installed = JsonConvert.DeserializeObject<LauncherInstalled>(File.ReadAllText(LauncherInstalledPath));
+					foreach (LauncherInstallationItem Item in Installed.InstallationList)
+					{
+						availableBuilds.Add(Item.AppName.Replace("UE_", ""), Item.InstallLocation);
+					}
 				}
+				catch { }
 			}
 
 			return availableBuilds;
