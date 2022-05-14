@@ -10,8 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-
-
+using SystemEx;
 
 namespace UE4Assistant
 {
@@ -295,5 +294,8 @@ namespace UE4Assistant
 				throw new UE4AssistantException($"File {fileName} already exists.");
 			}
 		}
+
+		public static string GetFilenameFromPlasticRev(this string plasticRev) =>
+			!plasticRev.IsNullOrWhiteSpace() ? plasticRev.CutFront(':').CutEnd('#') : string.Empty;
 	}
 }
