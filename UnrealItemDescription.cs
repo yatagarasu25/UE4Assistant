@@ -70,7 +70,8 @@ namespace UE4Assistant
 			}
 		}
 
-		public string ProjectLogPath => Path.Combine(RootPath, "Saved", "Logs", Name + ".log");
+		public string ProjectLogPath => Path.Combine(RootPath, "Saved", "Logs");
+		public string ProjectLogFile => Path.Combine(ProjectLogPath, Name + ".log");
 		public string ConfigurationPath => Path.Combine(RootPath, ".ue4a");
 		public TConfiguration ReadConfiguration<TConfiguration>()
 				where TConfiguration : new()
