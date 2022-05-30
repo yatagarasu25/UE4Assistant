@@ -21,10 +21,16 @@ namespace UE4Assistant
 		public List<LauncherInstallationItem> InstallationList;
 	}
 
+	public enum UnrealEngineBuildType
+	{
+		Installed,
+		Source
+	}
 	public class UnrealEngineInstance
 	{
 		public readonly string Uuid;
 		public readonly string RootPath;
+		public readonly UnrealEngineBuildType BuildType;
 
 
 		public string EnginePath => Path.Combine(RootPath, "Engine");
@@ -33,6 +39,9 @@ namespace UE4Assistant
 		public string BuildPath => Path.Combine(EnginePath, "Build");
 
 
+		public string BaseCommitFile => Path.Combine(RootPath, ".ue.basecommit");
+		public string DependenciesFile => Path.Combine(RootPath, ".ue4dependencies");
+		public string SetupFile => Path.Combine(RootPath, $"Setup{Utilities.ScriptExtension}");
 		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", $"GenerateProjectFiles{Utilities.ScriptExtension}");
 		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", $"RunUAT{Utilities.ScriptExtension}");
 		public string UnrealEditorPath {
@@ -51,7 +60,7 @@ namespace UE4Assistant
 				unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
 			}
 
-			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
+			var availableBuilds = FindAvailableBuilds();
 			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
 			if (!(Configuration?.UE4RootPath).IsNullOrWhiteSpace())
 			{
@@ -60,9 +69,10 @@ namespace UE4Assistant
 
 				foreach (var (uuid, path) in availableBuilds)
 				{
-					if (Path.GetFullPath(path) == RootPath)
+					if (Path.GetFullPath(path.Item1) == RootPath)
 					{
 						Uuid = uuid;
+						BuildType = path.Item2;
 						break;
 					}
 				}
@@ -71,26 +81,28 @@ namespace UE4Assistant
 			{
 				UProject project = UProject.Load(unrealItem.FullPath);
 
-				if (!availableBuilds.TryGetValue(project.EngineAssociation, out RootPath))
+				if (!availableBuilds.TryGetValue(project.EngineAssociation, out var item))
 				{
 					throw new UEIdNotFound(project.EngineAssociation);
 				}
 
 				Uuid = project.EngineAssociation;
-				RootPath = Path.GetFullPath(RootPath);
+				RootPath = Path.GetFullPath(item.Item1);
+				BuildType = item.Item2;
 			}
 		}
 
 		public UnrealEngineInstance(string rootPath)
 		{
-			Dictionary<string, string> availableBuilds = FindAvailableBuilds();
+			var availableBuilds = FindAvailableBuilds();
 
 			RootPath = Path.GetFullPath(rootPath);
 			foreach (var pair in availableBuilds)
 			{
-				if (RootPath.StartsWith(Path.GetFullPath(pair.Value)))
+				if (RootPath.StartsWith(Path.GetFullPath(pair.Value.Item1)))
 				{
-					RootPath = pair.Value;
+					RootPath = pair.Value.Item1;
+					BuildType = pair.Value.Item2;
 					Uuid = pair.Key;
 
 					break;
@@ -100,6 +112,21 @@ namespace UE4Assistant
 			if (!Directory.Exists(RootPath))
 			{
 				throw new UERootNotFound(rootPath);
+			}
+		}
+
+		public void Setup()
+		{
+			if (BuildType != UnrealEngineBuildType.Source)
+				return;
+
+			if (!File.Exists(BaseCommitFile))
+				return;
+
+			if (!File.Exists(DependenciesFile)
+				|| (File.GetLastWriteTime(BaseCommitFile) > File.GetLastWriteTime(DependenciesFile)))
+			{
+				Utilities.RequireExecuteCommandLine(SetupFile);
 			}
 		}
 
@@ -119,9 +146,9 @@ namespace UE4Assistant
 			return string.Empty;
 		}
 
-		public static Dictionary<string, string> FindAvailableBuilds()
+		public static Dictionary<string, (string, UnrealEngineBuildType)> FindAvailableBuilds()
 		{
-			Dictionary<string, string> availableBuilds = new Dictionary<string, string>();
+			var availableBuilds = new Dictionary<string, (string, UnrealEngineBuildType)>();
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
@@ -138,7 +165,7 @@ namespace UE4Assistant
 
 						if (!string.IsNullOrWhiteSpace(ueroot))
 						{
-							availableBuilds.Add(build, ueroot);
+							availableBuilds.Add(build, (ueroot, UnrealEngineBuildType.Installed));
 						}
 					}
 				}
@@ -153,11 +180,11 @@ namespace UE4Assistant
 						{
 							try
 							{
-								availableBuilds.Add(new Guid(build).ToString("B").ToUpper(), ueroot);
+								availableBuilds.Add(new Guid(build).ToString("B").ToUpper(), (ueroot, UnrealEngineBuildType.Source));
 							}
 							catch
 							{
-								availableBuilds.Add(build, ueroot);
+								availableBuilds.Add(build, (ueroot, UnrealEngineBuildType.Source));
 							}
 						}
 					}
@@ -173,7 +200,7 @@ namespace UE4Assistant
 					LauncherInstalled Installed = JsonConvert.DeserializeObject<LauncherInstalled>(File.ReadAllText(LauncherInstalledPath));
 					foreach (LauncherInstallationItem Item in Installed.InstallationList)
 					{
-						availableBuilds.Add(Item.AppName.Replace("UE_", ""), Item.InstallLocation);
+						availableBuilds.Add(Item.AppName.Replace("UE_", ""), (Item.InstallLocation, UnrealEngineBuildType.Installed));
 					}
 				}
 				catch { }
