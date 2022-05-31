@@ -55,6 +55,8 @@ namespace UE4Assistant
 
 		public UnrealEngineInstance(UnrealItemDescription unrealItem)
 		{
+			BuildType = UnrealEngineBuildType.Source;
+
 			if (unrealItem.Type != UnrealItemType.Project)
 			{
 				unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
@@ -97,6 +99,7 @@ namespace UE4Assistant
 			var availableBuilds = FindAvailableBuilds();
 
 			RootPath = Path.GetFullPath(rootPath);
+			BuildType = UnrealEngineBuildType.Source;
 			foreach (var pair in availableBuilds)
 			{
 				if (RootPath.StartsWith(Path.GetFullPath(pair.Value.Item1)))
