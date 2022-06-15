@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-
+using SystemEx;
 
 namespace UE4Assistant
 {
 	public enum UnrealItemType
 	{
+		Engine,
 		Project,
 		Plugin,
 		Module,
@@ -103,12 +103,14 @@ namespace UE4Assistant
 		{
 			foreach (string file in Directory.GetFiles(path))
 			{
-				if (file.EndsWith(postfix + ".uproject") && Array.IndexOf(types, UnrealItemType.Project) != -1)
+				if (types.Contains(UnrealItemType.Project) && file.EndsWith(postfix + ".uproject"))
 					return new UnrealItemDescription(UnrealItemType.Project, file);
-				else if (file.EndsWith(postfix + ".uplugin") && Array.IndexOf(types, UnrealItemType.Plugin) != -1)
+				else if (file.EndsWith(postfix + ".uplugin") && types.Contains(UnrealItemType.Plugin))
 					return new UnrealItemDescription(UnrealItemType.Plugin, file);
-				else if (file.EndsWith(postfix + ".Build.cs") && Array.IndexOf(types, UnrealItemType.Module) != -1)
+				else if (file.EndsWith(postfix + ".Build.cs") && types.Contains(UnrealItemType.Module))
 					return new UnrealItemDescription(UnrealItemType.Module, file);
+				else if (types.Contains(UnrealItemType.Engine) && file.EndsWith("GenerateProjectFiles.bat"))
+					return new UnrealItemDescription(UnrealItemType.Engine, file);
 			}
 
 			string basePath = Path.GetFullPath(Path.Combine(path, ".."));
@@ -119,9 +121,7 @@ namespace UE4Assistant
 		}
 
 		public static UnrealItemDescription DetectUnrealItem(string path, params UnrealItemType[] types)
-		{
-			return DetectUnrealItem(path, "", types);
-		}
+			=> DetectUnrealItem(path, "", types);
 
 		public static UnrealItemDescription DetectUnrealItemExceptTemp(string path, params UnrealItemType[] types)
 		{
@@ -129,9 +129,7 @@ namespace UE4Assistant
 		}
 
 		public static UnrealItemDescription DetectUnrealItem(string path)
-		{
-			return DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin, UnrealItemType.Module);
-		}
+			=> DetectUnrealItem(path, UnrealItemType.Project, UnrealItemType.Plugin, UnrealItemType.Module);
 
 		public static UnrealItemDescription RequireUnrealItem(string path, string postfix, params UnrealItemType[] types)
 			=> DetectUnrealItem(path, postfix, types) ?? throw new RequireUnrealItemException(path, types);
