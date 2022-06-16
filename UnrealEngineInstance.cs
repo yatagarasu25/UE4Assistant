@@ -5,6 +5,14 @@ using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using SystemEx;
 
+#if !NET5_0_OR_GREATER
+
+namespace System.Runtime.CompilerServices
+{
+	internal static class IsExternalInit { }
+}
+
+#endif
 
 
 namespace UE4Assistant
@@ -26,80 +34,124 @@ namespace UE4Assistant
 		Installed,
 		Source
 	}
+
+	public record class Version(int MajorVersion
+		, int MinorVersion
+		, int PatchVersion
+		, int Changelist
+		, int CompatibleChangelist
+		, int IsLicenseeVersion
+		, int IsPromotedBuild
+		, string BranchName);
+
 	public class UnrealEngineInstance
 	{
 		public readonly string Uuid;
 		public readonly string RootPath;
 		public readonly UnrealEngineBuildType BuildType;
 
+		public readonly Version Version;
 
 		public string EnginePath => Path.Combine(RootPath, "Engine");
 		public string BinariesPath => Path.Combine(EnginePath, "Binaries");
 		public string BinariesDotNETPath => Path.Combine(BinariesPath, "DotNET");
 		public string BuildPath => Path.Combine(EnginePath, "Build");
+		public string BuildBatchFilesPath => "".Let(_ => {
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return Path.Combine(BuildPath, "BatchFiles");
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				return Path.Combine(BuildPath, "BatchFiles", "Linux");
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+				return Path.Combine(BuildPath, "BatchFiles", "Mac");
 
+			return _;
+		});
 
 		public string BaseCommitFile => Path.Combine(RootPath, ".ue.basecommit");
+		public string NeedSetupFile => Path.Combine(RootPath, ".ue.needsetup");
 		public string DependenciesFile => Path.Combine(RootPath, ".ue4dependencies");
 		public string SetupFile => Path.Combine(RootPath, $"Setup{Utilities.ScriptExtension}");
-		public string GenerateProjectFiles => Path.Combine(BuildPath, "BatchFiles", "Mac", $"GenerateProjectFiles{Utilities.ScriptExtension}");
-		public string RunUATPath => Path.Combine(BuildPath, "BatchFiles", $"RunUAT{Utilities.ScriptExtension}");
-		public string UnrealEditorPath {
-			get {
-				var UE4 = Path.Combine(BinariesPath, "Win64", "UE4Editor.exe");
-				var UE5 = Path.Combine(BinariesPath, "Win64", "UnrealEditor.exe");
-				return File.Exists(UE4) ? UE4 : UE5;
-			}
-		}
+
+		public string BuildSh => Path.Combine(BuildBatchFilesPath, $"Build{Utilities.ScriptExtension}");
+		public string GenerateProjectFiles => Path.Combine(BuildBatchFilesPath, $"GenerateProjectFiles{Utilities.ScriptExtension}");
+		public string RunUATSh => Path.Combine(BuildBatchFilesPath, $"RunUAT{Utilities.ScriptExtension}");
+		public string RunUBTSh => Path.Combine(BuildBatchFilesPath, $"RunUBT{Utilities.ScriptExtension}");
+
+		public string EditorBuildTarget => Version.MajorVersion == 4
+				? "UE4Editor"
+				: "UnrealEditor";
+		public string UnrealEditorPath => Version.MajorVersion == 4
+				? Path.Combine(BinariesPath, "Win64", "UE4Editor.exe")
+				: Path.Combine(BinariesPath, "Win64", "UnrealEditor.exe");
 
 
 		public UnrealEngineInstance(UnrealItemDescription unrealItem)
 		{
 			BuildType = UnrealEngineBuildType.Source;
 
-			if (unrealItem.Type != UnrealItemType.Project)
-			{
-				unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project);
-			}
+			unrealItem = UnrealItemDescription.RequireUnrealItem(unrealItem.RootPath, UnrealItemType.Project, UnrealItemType.Engine);
 
-			var availableBuilds = FindAvailableBuilds();
-			var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
-			if (!(Configuration?.UE4RootPath).IsNullOrWhiteSpace())
+			if (unrealItem.Type == UnrealItemType.Project)
 			{
-				RootPath = Utilities.GetFullPath(Configuration.UE4RootPath, unrealItem.RootPath);
-				Uuid = "<Engine Not Registered>";
-
-				foreach (var (uuid, path) in availableBuilds)
+				var availableBuilds = FindAvailableBuilds();
+				var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
+				if (!(Configuration?.UE4RootPath).IsNullOrWhiteSpace())
 				{
-					if (Path.GetFullPath(path.Item1) == RootPath)
+					RootPath = Utilities.GetFullPath(Configuration.UE4RootPath, unrealItem.RootPath);
+					Uuid = "<Engine Not Registered>";
+
+					foreach (var (uuid, path) in availableBuilds)
 					{
-						Uuid = uuid;
-						BuildType = path.Item2;
+						if (Path.GetFullPath(path.Item1) == RootPath)
+						{
+							Uuid = uuid;
+							BuildType = path.Item2;
+							break;
+						}
+					}
+				}
+				else
+				{
+					UProject project = UProject.Load(unrealItem.FullPath);
+
+					if (!availableBuilds.TryGetValue(project.EngineAssociation, out var item))
+					{
+						throw new UEIdNotFound(project.EngineAssociation);
+					}
+
+					Uuid = project.EngineAssociation;
+					RootPath = Path.GetFullPath(item.Item1);
+					BuildType = item.Item2;
+				}
+			}
+			else if (unrealItem.Type == UnrealItemType.Engine)
+			{
+				RootPath = Path.GetFullPath(unrealItem.RootPath);
+
+				var availableBuilds = FindAvailableBuilds();
+				foreach (var pair in availableBuilds)
+				{
+					if (RootPath.StartsWith(Path.GetFullPath(pair.Value.Item1)))
+					{
+						RootPath = pair.Value.Item1;
+						BuildType = pair.Value.Item2;
+						Uuid = pair.Key;
+
 						break;
 					}
 				}
 			}
-			else
-			{
-				UProject project = UProject.Load(unrealItem.FullPath);
 
-				if (!availableBuilds.TryGetValue(project.EngineAssociation, out var item))
-				{
-					throw new UEIdNotFound(project.EngineAssociation);
-				}
-
-				Uuid = project.EngineAssociation;
-				RootPath = Path.GetFullPath(item.Item1);
-				BuildType = item.Item2;
-			}
+			Version = JsonConvert.DeserializeObject<Version>(
+				File.ReadAllText(Path.Combine(BuildPath, "Build.version")));
 		}
 
 		public UnrealEngineInstance(string rootPath)
 		{
-			var availableBuilds = FindAvailableBuilds();
-
 			RootPath = Path.GetFullPath(rootPath);
 			BuildType = UnrealEngineBuildType.Source;
+
+			var availableBuilds = FindAvailableBuilds();
 			foreach (var pair in availableBuilds)
 			{
 				if (RootPath.StartsWith(Path.GetFullPath(pair.Value.Item1)))
@@ -116,6 +168,9 @@ namespace UE4Assistant
 			{
 				throw new UERootNotFound(rootPath);
 			}
+
+			Version = JsonConvert.DeserializeObject<Version>(
+				File.ReadAllText(Path.Combine(BuildPath, "Build.version")));
 		}
 
 		public void Setup()
@@ -123,13 +178,19 @@ namespace UE4Assistant
 			if (BuildType != UnrealEngineBuildType.Source)
 				return;
 
-			if (!File.Exists(BaseCommitFile))
-				return;
+			if (File.Exists(BaseCommitFile))
+			{
+				if (!File.Exists(DependenciesFile)
+					|| (File.GetLastWriteTime(BaseCommitFile) > File.GetLastWriteTime(DependenciesFile)))
+				{
+					Utilities.RequireExecuteCommandLine(SetupFile);
+				}
+			}
 
-			if (!File.Exists(DependenciesFile)
-				|| (File.GetLastWriteTime(BaseCommitFile) > File.GetLastWriteTime(DependenciesFile)))
+			if (File.Exists(NeedSetupFile))
 			{
 				Utilities.RequireExecuteCommandLine(SetupFile);
+				File.Delete(NeedSetupFile);
 			}
 		}
 
@@ -218,6 +279,9 @@ namespace UE4Assistant
 			{
 				var UserUnrealEngineBuilds = Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
 					?.OpenSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds", Microsoft.Win32.RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+				UserUnrealEngineBuilds ??= Microsoft.Win32.RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, Microsoft.Win32.RegistryView.Registry64)
+					?.CreateSubKey(@"SOFTWARE\Epic Games\Unreal Engine\Builds", Microsoft.Win32.RegistryKeyPermissionCheck.ReadWriteSubTree);
 
 				if (UserUnrealEngineBuilds != null)
 				{
