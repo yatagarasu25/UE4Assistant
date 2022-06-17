@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.1;net472;net50;net60</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    <Version>5.0.19</Version>
+    <Version>5.0.20</Version>
 
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

@@ -71,7 +71,7 @@ namespace UE4Assistant
 
 		public static void DeleteFile(string path)
 		{
-			Console.WriteLine("rm " + path);
+			Console.WriteLine("> rm " + path);
 			if (File.Exists(path))
 			{
 				File.Delete(path);
@@ -80,7 +80,7 @@ namespace UE4Assistant
 
 		public static void DeleteDirectory(string path)
 		{
-			Console.WriteLine("rm " + path);
+			Console.WriteLine("> rmdir " + path);
 			if (Directory.Exists(path))
 			{
 				Directory.Delete(path, true);
@@ -98,43 +98,7 @@ namespace UE4Assistant
 		{
 			Console.WriteLine("> " + command);
 
-			var errorlevelFileName = Path.GetTempFileName();
-			ProcessStartInfo processStartInfo = new ProcessStartInfo();
-			processStartInfo.UseShellExecute = false;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				processStartInfo.FileName = "cmd.exe";
-				processStartInfo.Arguments = "/v:on /c \"" + command + $" & echo !errorlevel! > {errorlevelFileName}\"";
-			}
-			else
-			{
-				processStartInfo.FileName = "/bin/bash";
-				processStartInfo.Arguments = command;
-			}
-
-			using (Process process = Process.Start(processStartInfo))
-			{
-				//process.StartInfo.RedirectStandardOutput = true;
-				//process.StartInfo.RedirectStandardError = true;
-				//process.StartInfo.RedirectStandardInput = true;
-				//process.BeginOutputReadLine();
-				//process.BeginErrorReadLine();
-
-				//Console.Write(process.StandardOutput.ReadToEnd());
-				//Console.Write(process.StandardError.ReadToEnd());
-
-				process.WaitForExit();
-			}
-
-			int errorlevel = 0;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				if (!int.TryParse(File.ReadAllText(errorlevelFileName), out errorlevel))
-					errorlevel = -1;
-				File.Delete(errorlevelFileName);
-			}
-
-			return errorlevel;
+			return ProcessEx.Command(command);
 		}
 
 		public static int ExecuteOpenFile(string filename)
@@ -227,27 +191,6 @@ namespace UE4Assistant
 			int i0 = packageName.LastIndexOf('/');
 
 			return packageName.Substring(i0 + 1);
-		}
-
-		class SetCurrentDirectoryGuard : IDisposable
-		{
-			string olddir;
-
-			public SetCurrentDirectoryGuard(string newdir)
-			{
-				olddir = Directory.GetCurrentDirectory();
-				Directory.SetCurrentDirectory(newdir);
-			}
-
-			public void Dispose()
-			{
-				Directory.SetCurrentDirectory(olddir);
-			}
-		}
-
-		public static IDisposable SetCurrentDirectory(string newdir)
-		{
-			return new SetCurrentDirectoryGuard(newdir);
 		}
 
 		public static IEnumerable<string> ParsePCHFilesErrors(this string log)
