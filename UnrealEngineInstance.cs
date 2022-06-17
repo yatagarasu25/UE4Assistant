@@ -56,13 +56,14 @@ namespace UE4Assistant
 		public string BinariesPath => Path.Combine(EnginePath, "Binaries");
 		public string BinariesDotNETPath => Path.Combine(BinariesPath, "DotNET");
 		public string BuildPath => Path.Combine(EnginePath, "Build");
-		public string BuildBatchFilesPath => "".Let(_ => {
+		public string BuildBatchFilesPath => Path.Combine(BuildPath, "BatchFiles");
+		public string BuildBatchPlatformFilesPath => BuildBatchFilesPath.Let(_ => {
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-				return Path.Combine(BuildPath, "BatchFiles");
+				return _;
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-				return Path.Combine(BuildPath, "BatchFiles", "Linux");
+				return Path.Combine(_, "Linux");
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-				return Path.Combine(BuildPath, "BatchFiles", "Mac");
+				return Path.Combine(_, "Mac");
 
 			return _;
 		});
@@ -72,8 +73,8 @@ namespace UE4Assistant
 		public string DependenciesFile => Path.Combine(RootPath, ".ue4dependencies");
 		public string SetupFile => Path.Combine(RootPath, $"Setup{Utilities.ScriptExtension}");
 
-		public string BuildSh => Path.Combine(BuildBatchFilesPath, $"Build{Utilities.ScriptExtension}");
-		public string GenerateProjectFiles => Path.Combine(BuildBatchFilesPath, $"GenerateProjectFiles{Utilities.ScriptExtension}");
+		public string BuildSh => Path.Combine(BuildBatchPlatformFilesPath, $"Build{Utilities.ScriptExtension}");
+		public string GenerateProjectFiles => Path.Combine(BuildBatchPlatformFilesPath, $"GenerateProjectFiles{Utilities.ScriptExtension}");
 		public string RunUATSh => Path.Combine(BuildBatchFilesPath, $"RunUAT{Utilities.ScriptExtension}");
 		public string RunUBTSh => Path.Combine(BuildBatchFilesPath, $"RunUBT{Utilities.ScriptExtension}");
 
