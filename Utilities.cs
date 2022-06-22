@@ -193,6 +193,30 @@ namespace UE4Assistant
 			return packageName.Substring(i0 + 1);
 		}
 
+		public static IEnumerable<string> ParseDllLoadErrors(this string log)
+		{
+			foreach (string line in log.Split('\n'))
+			{
+				int mi = line.IndexOf("LogWindows: Failed to load");
+				if (mi < 0)
+				{
+					mi = line.IndexOf("LogWindows: Failed to preload");
+					if (mi < 0)
+						continue;
+				}
+
+				int si = line.IndexOf('\'', mi);
+				if (si < 0)
+					continue;
+
+				int ei = line.IndexOf('\'', si + 1);
+				if (ei <= si)
+					continue;
+
+				yield return line.Substring(si + 1, ei - si - 1);
+			}
+		}
+
 		public static IEnumerable<string> ParsePCHFilesErrors(this string log)
 		{
 			foreach (string line in log.Split('\n'))
