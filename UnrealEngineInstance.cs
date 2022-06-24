@@ -52,6 +52,17 @@ namespace UE4Assistant
 
 		public readonly Version Version;
 
+		public string Platform => "Unknown".Let(_ => {
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return "Win64";
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+				return "Linux";
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+				return "Mac";
+
+			return _;
+		});
+
 		public string EnginePath => Path.Combine(RootPath, "Engine");
 		public string BinariesPath => Path.Combine(EnginePath, "Binaries");
 		public string BinariesDotNETPath => Path.Combine(BinariesPath, "DotNET");
@@ -81,9 +92,9 @@ namespace UE4Assistant
 		public string EditorBuildTarget => Version.MajorVersion == 4
 				? "UE4Editor"
 				: "UnrealEditor";
-		public string UnrealEditorPath => Version.MajorVersion == 4
-				? Path.Combine(BinariesPath, "Win64", "UE4Editor.exe")
-				: Path.Combine(BinariesPath, "Win64", "UnrealEditor.exe");
+
+		public string UnrealCmdPath => Path.Combine(BinariesPath, Platform, $"{EditorBuildTarget}-Cmd.exe");
+		public string UnrealEditorPath => Path.Combine(BinariesPath, Platform, $"{EditorBuildTarget}.exe");
 
 
 		public UnrealEngineInstance(UnrealItemDescription unrealItem)
