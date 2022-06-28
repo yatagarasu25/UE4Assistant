@@ -136,5 +136,26 @@ namespace UE4Assistant
 
 		public static UnrealItemDescription RequireUnrealItem(string path, params UnrealItemType[] types)
 			=> DetectUnrealItem(path, "", types) ?? throw new RequireUnrealItemException(path, types);
+
+		public ProjectConfiguration SanitizeConfiguration(ProjectConfiguration s)
+		{
+			if (s == null)
+				return s;
+
+			s.UE4RootPath = s.UE4RootPath?.Let(p => Utilities.GetFullPath(p, RootPath));
+
+			return s;
+		}
+
+		public UnrealCookSettings SanitizeSettings(UnrealCookSettings s)
+		{
+			if (s == null)
+				return s;
+
+			s.UE4RootPath = s.UE4RootPath?.Let(p => Utilities.GetFullPath(p, RootPath));
+			s.ArchiveDirectory = s.ArchiveDirectory?.Let(p => Utilities.GetFullPath(p, RootPath));
+
+			return s;
+		}
 	}
 }

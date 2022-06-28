@@ -106,10 +106,10 @@ namespace UE4Assistant
 			if (unrealItem.Type == UnrealItemType.Project)
 			{
 				var availableBuilds = FindAvailableBuilds();
-				var Configuration = unrealItem.ReadConfiguration<ProjectConfiguration>();
+				var Configuration = unrealItem.SanitizeConfiguration(unrealItem.ReadConfiguration<ProjectConfiguration>());
 				if (!(Configuration?.UE4RootPath).IsNullOrWhiteSpace())
 				{
-					RootPath = Utilities.GetFullPath(Configuration.UE4RootPath, unrealItem.RootPath);
+					RootPath = Configuration.UE4RootPath;
 					Uuid = "<Engine Not Registered>";
 
 					foreach (var (uuid, path) in availableBuilds)
