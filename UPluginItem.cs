@@ -1,8 +1,5 @@
 ﻿namespace UE4Assistant;
 
-using System.Collections.Generic;
-using SystemEx;
-
 public class UPluginItem
 {
 	public string Name;

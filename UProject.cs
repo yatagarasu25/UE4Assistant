@@ -1,11 +1,5 @@
 ﻿namespace UE4Assistant;
 
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-
-
 public class UProject
 {
 	[NonSerialized]
