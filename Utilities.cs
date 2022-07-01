@@ -87,18 +87,18 @@ namespace UE4Assistant
 			}
 		}
 
-		public static void RequireExecuteCommandLine(string command)
+		public static void RequireExecuteCommandLine(string command, Action<string> contentFn = null)
 		{
-			var error = ExecuteCommandLine(command);
+			var error = ExecuteCommandLine(command, contentFn);
 			if (error != 0)
 				throw new ExecuteCommandLineException(command, error);
 		}
 
-		public static int ExecuteCommandLine(string command)
+		public static int ExecuteCommandLine(string command, Action<string> contentFn = null)
 		{
 			Console.WriteLine("> " + command);
 
-			return ProcessEx.Command(command);
+			return ProcessEx.Command(command, contentFn);
 		}
 
 		public static int ExecuteOpenFile(string filename)
