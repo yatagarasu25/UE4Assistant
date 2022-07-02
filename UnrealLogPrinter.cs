@@ -21,21 +21,21 @@ public class UnrealLogPrinter
 	{
 		patterns.Add(new ColorPattern { pattern = @"(Running):\s*(.*)"
 				, colors = new[] {
-					Tuple.Create(Console.ForegroundColor, Console.BackgroundColor)
-					, Tuple.Create(ConsoleColor.DarkGray, Console.BackgroundColor)
+					Tuple.Create((ConsoleColor)(-1), (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
 				}
 		});
 		patterns.Add(new ColorPattern {	pattern = @"(Warning):\s*(.*)"
 				, colors = new[] {
-					Tuple.Create(ConsoleColor.Yellow, Console.BackgroundColor)
-					, Tuple.Create(ConsoleColor.DarkGray, Console.BackgroundColor)
+					Tuple.Create(ConsoleColor.Yellow, (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
 				}
 			}
 		);
 		patterns.Add(new ColorPattern {	pattern = @"(Error):\s*(.*)"
 				, colors = new[] {
-					Tuple.Create(ConsoleColor.Red, Console.BackgroundColor)
-					, Tuple.Create(ConsoleColor.DarkGray, Console.BackgroundColor)
+					Tuple.Create(ConsoleColor.Black, ConsoleColor.Red)
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
 				}
 			}
 		);
