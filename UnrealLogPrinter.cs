@@ -25,14 +25,34 @@ public class UnrealLogPrinter
 					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
 				}
 		});
-		patterns.Add(new ColorPattern {	pattern = @"(Warning):\s*(.*)"
+		patterns.Add(new ColorPattern { pattern = @"(Running)\s+(.*?)\s+(.*?)\s+""(.*)"""
+				, colors = new[] {
+					Tuple.Create((ConsoleColor)(-1), (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGreen, (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGreen, (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
+				}
+		});
+		patterns.Add(new ColorPattern { pattern = @"(Log location):\s+(.*)"
+				, colors = new[] {
+					Tuple.Create(ConsoleColor.DarkYellow, (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
+				}
+		});
+		patterns.Add(new ColorPattern { pattern = @"(Log file):\s+(.*)"
+				, colors = new[] {
+					Tuple.Create(ConsoleColor.DarkYellow, (ConsoleColor)(-1))
+					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
+				}
+		});
+		patterns.Add(new ColorPattern {	pattern = @"(?i)(Warning):\s*(.*)(?-i)"
 				, colors = new[] {
 					Tuple.Create(ConsoleColor.Yellow, (ConsoleColor)(-1))
 					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
 				}
 			}
 		);
-		patterns.Add(new ColorPattern {	pattern = @"(Error):\s*(.*)"
+		patterns.Add(new ColorPattern {	pattern = @"(?i)(Error):\s*(.*)(?-i)"
 				, colors = new[] {
 					Tuple.Create(ConsoleColor.Black, ConsoleColor.Red)
 					, Tuple.Create(ConsoleColor.DarkGray, (ConsoleColor)(-1))
