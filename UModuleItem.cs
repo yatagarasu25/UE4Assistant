@@ -36,4 +36,7 @@ public class UModuleItem
 	public UModuleType Type = UModuleType.Runtime;
 	[JsonConverter(typeof(StringEnumConverter))]
 	public UModuleLoadingPhase LoadingPhase = UModuleLoadingPhase.Default;
+	public List<string> AdditionalDependencies = new();
+
+	public bool ShouldSerializeAdditionalDependencies() => AdditionalDependencies != null && AdditionalDependencies.Count > 0;
 }

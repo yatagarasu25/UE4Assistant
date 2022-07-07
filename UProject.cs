@@ -8,12 +8,12 @@ public class UProject
 	public string Name;
 
 	public int FileVersion = 3;
-	public string EngineAssociation = "";
-	public string Category = "";
-	public string Description = "";
-	public List<UModuleItem> Modules = new List<UModuleItem>();
-	public List<UPluginItem> Plugins = new List<UPluginItem>();
-	public List<string> TargetPlatforms = new List<string>();
+	public string EngineAssociation = string.Empty;
+	public string Category = string.Empty;
+	public string Description = string.Empty;
+	public List<UModuleItem> Modules = new();
+	public List<UPluginItem> Plugins = new();
+	public List<string> TargetPlatforms = new();
 
 	public bool ShouldSerializeModules() => Modules != null && Modules.Count > 0;
 	public bool ShouldSerializePlugins() => Plugins != null && Plugins.Count > 0;
