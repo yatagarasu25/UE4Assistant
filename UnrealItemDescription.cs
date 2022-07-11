@@ -66,11 +66,21 @@ public class UnrealItemDescription
 
 	public string ProjectLogPath => Path.Combine(RootPath, "Saved", "Logs");
 	public string ProjectLogFile => Path.Combine(ProjectLogPath, Name + ".log");
-	public string ConfigurationPath => Path.Combine(RootPath, ".ue4a");
+	public IEnumerable<string> ConfigurationPaths {
+		get {
+			if (Type == UnrealItemType.Project)
+			{
+				yield return Path.Combine(RootPath, "Config");
+				yield return Path.Combine(RootPath, "Saved", "Config", "WindowsEditor");
+			}
+		}
+	}
+
+	public string Ue4AssistantConfigurationPath => Path.Combine(RootPath, ".ue4a");
 	public TConfiguration ReadConfiguration<TConfiguration>()
 			where TConfiguration : new()
-		=> File.Exists(ConfigurationPath)
-			? Configuration.ReadConfiguration<TConfiguration>(ConfigurationPath)
+		=> File.Exists(Ue4AssistantConfigurationPath)
+			? Configuration.ReadConfiguration<TConfiguration>(Ue4AssistantConfigurationPath)
 			: default;
 
 	public UnrealItemDescription(UnrealItemType type, string path)
