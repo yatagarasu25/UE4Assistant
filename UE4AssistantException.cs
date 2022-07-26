@@ -15,7 +15,7 @@ public class RequireUnrealItemException : UE4AssistantException
 	private string path;
 	private UnrealItemType[] types;
 
-	public override string Message => $"Can not find any suitable unreal item in ${path} ot it's parent folders. Require any of ${types.Select(t => t.ToString()).Join(", ")}.";
+	public override string Message => $"Can not find any suitable unreal item in {path} ot it's parent folders. Require any of {types.Select(t => t.ToString()).Join(", ")}.";
 
 	public RequireUnrealItemException(string path, params UnrealItemType[] types)
 	{
