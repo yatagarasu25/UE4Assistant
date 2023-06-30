@@ -49,19 +49,6 @@ public static class Utilities
 		return localTime;
 	}
 
-	public static string EscapeCommandLineArgs(params string[] args)
-	{
-		return string.Join(" ", args.Select((a) =>
-		{
-			var s = Regex.Replace(a, @"(\\*)" + "\"", @"$1$1\" + "\"");
-			if (s.Contains(" "))
-			{
-				s = "\"" + Regex.Replace(s, @"(\\+)$", @"$1$1") + "\"";
-			}
-			return s;
-		}).ToArray());
-	}
-
 	public static void DeleteFile(string path)
 	{
 		Console.WriteLine("> rm " + path);
