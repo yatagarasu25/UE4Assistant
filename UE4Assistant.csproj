@@ -1,41 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net60;net70</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    <Version>5.0.21</Version>
+	<PropertyGroup>
+		<TargetFrameworks>net60;net70</TargetFrameworks>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+		<Version>5.0.21</Version>
 
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove=".git" />
-    <None Remove=".gitignore" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove=".git" />
+		<None Remove=".gitignore" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)SystemEx\SystemEx.csproj" />
-    <ProjectReference Include="..\ANSIConsole\ANSIConsole\ANSIConsole.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="$(SolutionDir)SystemEx\SystemEx.csproj" />
+		<ProjectReference Include="..\ANSIConsole\ANSIConsole\ANSIConsole.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="IndexRange" Version="1.0.2" />
-    <PackageReference Include="IsExternalInit" Version="1.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="IndexRange" Version="1.0.2" />
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+		<PackageReference Include="Newtonsoft.Json">
+			<Version>13.0.1</Version>
+		</PackageReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Properties\" />
+	</ItemGroup>
 </Project>
